@@ -231,12 +231,15 @@ mrb_inline_missing(mrb_state *mrb, mrb_value self)
   mrb_value pobj;
   int a;
   int i;
+//
 
   mrb_get_args(mrb, "o*", &mid, &argv, &argc);
   for (i = 0; i < argc; i++) {
     mrb->c->stack[i + 1] = mrb->c->stack[i + 2];
 // for (i = 1; i <= argc; i++) {
 //  mrb->c->stack[i] = mrb->c->stack[i + 1];
+// for (a = 1; a <= argc; a++) {
+//  mrb->c->stack[a] = mrb->c->stack[a + 1];
   }
   
   caller_proc = mrb->c->ci[-1].proc;
