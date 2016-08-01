@@ -18,11 +18,17 @@ copy_irep(mrb_state *mrb, mrb_irep *irep)
   nirep->iseq = (mrb_code*)mrb_malloc(mrb, sizeof(mrb_code)*irep->ilen);
   for (i = 0; i < irep->ilen; i++) {
     nirep->iseq[i] = irep->iseq[i];
+// i = 0
+// while (i < irep->ilen) {
+//  nirep->iseq[i] = irep->iseq[i++];	# -O0 ?
   }
 
   nirep->reps = (mrb_irep**)mrb_malloc(mrb, sizeof(mrb_irep*)*irep->rlen);
   for (i = 0; i < irep->rlen; i++) {
     nirep->reps[i] = copy_irep(mrb, irep->reps[i]);
+// i = 0
+// while (i < irep->rlen) {
+//  nirep->reps[i] = copy_irep(mrb, irep->reps[i++]);	# -O0 ?
   }
 
   return nirep;
@@ -33,6 +39,8 @@ patch_reps(mrb_state *mrb, mrb_irep *irep, int a, int level) {
   int i;
 
   for (i = 0; i < irep->ilen; i++) {
+// i = 0
+// while (i < irep->ilen) {
     mrb_code code = irep->iseq[i];
     switch (GET_OPCODE(code)) {
     case OP_GETUPVAR:
@@ -41,6 +49,7 @@ patch_reps(mrb_state *mrb, mrb_irep *irep, int a, int level) {
 	code = MKOP_ABC(GET_OPCODE(code), 
 			GETARG_A(code), GETARG_B(code) + a, level);
 	irep->iseq[i] = code;
+//	irep->iseq[i++] = code;		# -O0 ?
       }
 
       break;
@@ -53,6 +62,9 @@ patch_reps(mrb_state *mrb, mrb_irep *irep, int a, int level) {
 
   for (i = 0; i < irep->rlen; i++) {
     patch_reps(mrb, irep->reps[i], a, level + 1);
+// i = 0
+// while (i < irep->rlen) {
+//  patch_reps(mrb, irep->reps[i++], a, level + 1);	# -O0 ?
   }
 }
 
@@ -91,6 +103,9 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
     dst->syms = mrb_realloc(mrb, dst->syms, dst->slen * sizeof(mrb_sym));
     for (i = 0; i < src->slen; i++) {
       dst->syms[symbase + i] = src->syms[i];
+//  i = 0;
+//  while (i < src->slen) {
+//    dst->syms[symbase + i] = src->syms[i++];	# -O0 ?
     }
   }
 
@@ -100,6 +115,9 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
     dst->pool = mrb_realloc(mrb, dst->pool, dst->plen * sizeof(mrb_value));
     for (i = 0; i < src->plen; i++) {
       dst->pool[poolbase + i] = src->pool[i];
+//  i = 0;
+//  while (i < src->plen) {
+//    dst->pool[poolbase + i] = src->pool[i++];		# -O0 ?
     }
   }
 
@@ -109,6 +127,9 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
     dst->reps = mrb_realloc(mrb, dst->reps, dst->rlen * sizeof(mrb_irep *));
     for (i = 0; i < src->rlen; i++) {
       dst->reps[repsbase + i] = copy_irep(mrb, src->reps[i]);
+//  i = 0;
+//  while (i < src->rlen) {
+//    dst->reps[repsbase + i] = copy_irep(mrb, src->reps[i++]);		# -O0 ?
     }
   }
 
@@ -120,6 +141,9 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
   /* Patched inlined code */
   for (i = 0; i < src->ilen; i++) {
     code = src->iseq[i];
+// i = 0;
+// while (i < src->ilen) {
+//  code = src->iseq[i++];	# -O0 ?
     switch(GET_OPCODE(code)) {
     case OP_RETURN:
       code = MKOP_AB(OP_MOVE, a, GETARG_A(code) + a);
@@ -240,6 +264,14 @@ mrb_inline_missing(mrb_state *mrb, mrb_value self)
 //  mrb->c->stack[i] = mrb->c->stack[i + 1];
 // for (a = 1; a <= argc; a++) {
 //  mrb->c->stack[a] = mrb->c->stack[a + 1];
+// i = 1;
+// while (i <= argc) {
+//  mrb->c->stack[i] = mrb->c->stack[++i];	# -O0 ?
+//  mrb->c->stack[i++] = mrb->c->stack[i];	# -O0 ?
+// a = 1;
+// while (a <= argc) {
+//  mrb->c->stack[a] = mrb->c->stack[++a];	# -O0 ?
+//  mrb->c->stack[a++] = mrb->c->stack[a];	# -O0 ?
   }
   
   caller_proc = mrb->c->ci[-1].proc;
