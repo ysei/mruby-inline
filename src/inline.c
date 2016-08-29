@@ -153,12 +153,10 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
 // while (i < src->ilen) {
 //  code = src->iseq[i++];	/* -O0 ? */
 
-//  get_opcode__code  = GET_OPCODE(code)
 //  getarg_a__code    = GETARG_A(code);
 //  getarg_a__code__a = getarg_a__code + a;
 
     switch(GET_OPCODE(code)) {
-//  switch(get_opcode__code)) {
     case OP_RETURN:
       code = MKOP_AB(OP_MOVE, a, GETARG_A(code) + a);
 //    code = MKOP_AB(OP_MOVE, a, getarg_a__code__a);
@@ -187,7 +185,11 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
     }
 
     /* Shift regster number */
+//  get_opcode__code = GET_OPCODE(code);
 //  optype_list__get_opcode__code = optype_list[get_opcode__code];
+//  getarg_a__code    = GETARG_A(code);
+//  getarg_a__code__a = getarg_a__code + a;
+
     switch(optype_list[GET_OPCODE(code)]) {
 //  switch(optype_list__get_opcode__code) {
     case OPTYPE_NONE:
