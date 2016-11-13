@@ -81,6 +81,7 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
 // mrb_code getarg_a__code__a;			/* ? */
 // mrb_code getarg_b__code;			/* ? */
 // mrb_code getarg_b__code__a;			/* ? */
+/// mrb_code getarg_bx__code;			/* ? */
 // mrb_code getarg_c__code;			/* ? */
 // mrb_code getarg_c__code__a;			/* ? */
   int i;
@@ -153,10 +154,12 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
 // while (i < src->ilen) {
 //  code = src->iseq[i++];	/* -O0 ? */
 
+//  get_opcode__code  = GET_OPCODE(code);
 //  getarg_a__code    = GETARG_A(code);
 //  getarg_a__code__a = getarg_a__code + a;
 
     switch(GET_OPCODE(code)) {
+//  switch(get_opcode__code)) {
     case OP_RETURN:
       code = MKOP_AB(OP_MOVE, a, GETARG_A(code) + a);
 //    code = MKOP_AB(OP_MOVE, a, getarg_a__code__a);
@@ -169,15 +172,19 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
 //    code = MKOP_AB(OP_MOVE, getarg_a__code, 0);
       break;
 
-    case OP_LAMBDA:
-      code = MKOP_Abc(OP_LAMBDA, GETARG_A(code), GETARG_b(code) + repsbase, GETARG_c(code));
-//    code = MKOP_Abc(OP_LAMBDA, getarg_a__code, GETARG_b(code) + repsbase, GETARG_c(code));
-      patch_reps(mrb, dst->reps[GETARG_b(code)], a, 0);
-      break;
+/// default:
+///   switch(get_opcode__code)) {
+      case OP_LAMBDA:
+	code = MKOP_Abc(OP_LAMBDA, GETARG_A(code), GETARG_b(code) + repsbase, GETARG_c(code));
+//	code = MKOP_Abc(OP_LAMBDA, getarg_a__code, GETARG_b(code) + repsbase, GETARG_c(code));
+	patch_reps(mrb, dst->reps[GETARG_b(code)], a, 0);
+	break;
 
-    case OP_ENTER:
-      code = MKOPCODE(OP_NOP);
-      break;
+      case OP_ENTER:
+	code = MKOPCODE(OP_NOP);
+	break;
+///
+///   }
 
     default:
       /* do nothing */
@@ -215,6 +222,8 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
 	break;
 
 //    default:
+///	getarg_b__code	  = GETARG_B(code);
+///	getarg_b__code__a = getarg_b__code + a;
 //	getarg_c__code	  = GETARG_C(code);
 //	getarg_c__code__a = getarg_c__code + a;
 
@@ -262,26 +271,35 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
 //		      getarg_a__code__a, getarg_b__code + symbase, getarg_c__code);
 	  break;
 
-//	case OPTYPE_ABx:
-	  code = MKOP_ABx(GET_OPCODE(code), GETARG_A(code) + a, GETARG_Bx(code));
-//	  code = MKOP_ABx(get_opcode__code, getarg_a__code__a, GETARG_Bx(code));
+///	default:
+///	  getarg_bx__code = GETARG_Bx(code);
+
+//	  switch(optype_list__get_opcode__code) {
+//	  case OPTYPE_ABx:
+	    code = MKOP_ABx(GET_OPCODE(code), GETARG_A(code) + a, GETARG_Bx(code));
+//	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, GETARG_Bx(code));
+///	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, getarg_bx__code);
 	  break;
 
-	case OPTYPE_ABp:
-	  code = MKOP_ABx(GET_OPCODE(code), GETARG_A(code) + a, GETARG_Bx(code) + poolbase);
-//	  code = MKOP_ABx(get_opcode__code, getarg_a__code__a, GETARG_Bx(code) + poolbase);
-	  break;
+	  case OPTYPE_ABp:
+	    code = MKOP_ABx(GET_OPCODE(code), GETARG_A(code) + a, GETARG_Bx(code) + poolbase);
+//	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, GETARG_Bx(code) + poolbase);
+///	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, getarg_bx__code + poolbase);
+	    break;
 
-	case OPTYPE_ABs:
-	  code = MKOP_ABx(GET_OPCODE(code), GETARG_A(code) + a, GETARG_Bx(code) + symbase);
-//	  code = MKOP_ABx(get_opcode__code, getarg_a__code__a, GETARG_Bx(code) + symbase);
-	  break;
+	  case OPTYPE_ABs:
+	    code = MKOP_ABx(GET_OPCODE(code), GETARG_A(code) + a, GETARG_Bx(code) + symbase);
+//	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, GETARG_Bx(code) + symbase);
+///	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, getarg_bx__code + symbase);
+	    break;
 
-	case OPTYPE_AsBx:
-	  code = MKOP_AsBx(GET_OPCODE(code), GETARG_A(code) + a, GETARG_sBx(code));
-//	  code = MKOP_AsBx(get_opcode__code, getarg_a__code__a, GETARG_sBx(code));
-	  break;
+	  case OPTYPE_AsBx:
+	    code = MKOP_AsBx(GET_OPCODE(code), GETARG_A(code) + a, GETARG_sBx(code));
+//	    code = MKOP_AsBx(get_opcode__code, getarg_a__code__a, GETARG_sBx(code));
+	    break;
+//
 
+///	  }
 //	}
 //    }
     }
