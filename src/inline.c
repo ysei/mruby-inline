@@ -56,6 +56,7 @@ patch_reps(mrb_state *mrb, mrb_irep *irep, int a, int level) {
 
     default:
       /* Do nothing */
+//    i++;				/* bunki yosoku ? */
       break;
     }
   }
