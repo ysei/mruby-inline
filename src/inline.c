@@ -105,6 +105,9 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
 #endif
   send_pc =  dst->iseq + pcoff - 1;
   ent = dst->iseq + entpos;
+// send_pc = dst->iseq;
+// ent = send_pc + entpos;
+// send_pc += pcoff - 1;
   curpos = ent;
 
   /* extend syms */
@@ -197,6 +200,7 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
 //  optype_list__get_opcode__code = optype_list[get_opcode__code];
 //  getarg_a__code    = GETARG_A(code);
 //  getarg_a__code__a = getarg_a__code + a;
+//  optype_list__get_opcode__code = optype_list[get_opcode__code];
 
     switch(optype_list[GET_OPCODE(code)]) {
 //  switch(optype_list__get_opcode__code) {
@@ -272,6 +276,11 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
 //		      getarg_a__code__a, getarg_b__code + symbase, getarg_c__code);
 	  break;
 
+///	case OPTYPE_AsBx:
+///	    code = MKOP_AsBx(GET_OPCODE(code), GETARG_A(code) + a, GETARG_sBx(code));
+///	    code = MKOP_AsBx(get_opcode__code, getarg_a__code__a, GETARG_sBx(code));
+///	    break;
+
 ///	default:
 ///	  getarg_bx__code = GETARG_Bx(code);
 
@@ -326,6 +335,7 @@ mrb_inline_missing(mrb_state *mrb, mrb_value self)
   int a;
   int i;
 //
+// mrb_char str__inline_method_list = "__inline_method_list__";	// ? 	// mojiretu
 
   mrb_get_args(mrb, "o*", &mid, &argv, &argc);
   for (i = 0; i < argc; i++) {
@@ -348,8 +358,10 @@ mrb_inline_missing(mrb_state *mrb, mrb_value self)
   caller_irep = caller_proc->body.irep;
 
   iml = mrb_obj_iv_get(mrb, mrb_class(mrb, self), mrb_intern_lit(mrb, "__inline_method_list__"));
+// iml = mrb_obj_iv_get(mrb, mrb_class(mrb, self), mrb_intern_lit(mrb, str__inline_method_list));
   if (mrb_nil_p(iml)) {
   iml = mrb_obj_iv_get(mrb, mrb_class_ptr(self), mrb_intern_lit(mrb, "__inline_method_list__"));
+// iml = mrb_obj_iv_get(mrb, mrb_class_ptr(self), mrb_intern_lit(mrb, str__inline_method_list));
   }
   
   pobj = mrb_hash_get(mrb, iml, mid);
@@ -360,6 +372,9 @@ mrb_inline_missing(mrb_state *mrb, mrb_value self)
   a = mrb->c->ci->acc;
   if (caller_irep->nregs < callee_irep->nregs + a) {
     caller_irep->nregs = callee_irep->nregs + a;
+// i = callee_irep->nregs + a;
+// if (caller_irep->nregs < i;
+//  caller_irep->nregs = i;
   }
 
   mrb->c->ci->pc =  patch_irep_for_inline(mrb, callee_irep, caller_irep, a);
@@ -376,10 +391,12 @@ mrb_inline_make_inline_method(mrb_state *mrb, mrb_value self)
   struct RProc *m;
   mrb_value mid;
   struct RClass *c = mrb_class_ptr(self);
+// mrb_char str__inline_method_list = "__inline_method_list__";	// ? 	// mojiretu
 
   mrb_get_args(mrb, "o", &mid);
 
   iml = mrb_obj_iv_get(mrb, obj, mrb_intern_lit(mrb, "__inline_method_list__"));
+// iml = mrb_obj_iv_get(mrb, obj, mrb_intern_lit(mrb, str__inline_method_list));
   if (mrb_nil_p(iml)) {
     iml = mrb_hash_new(mrb);
   }
@@ -392,6 +409,7 @@ mrb_inline_make_inline_method(mrb_state *mrb, mrb_value self)
 
   mrb_hash_set(mrb, iml, mid, mrb_obj_value(m));
   mrb_obj_iv_set(mrb, obj, mrb_intern_lit(mrb, "__inline_method_list__"), iml);
+// mrb_obj_iv_set(mrb, obj, mrb_intern_lit(mrb, str__inline_method_list), iml);
   mrb_undef_method(mrb, c, mrb_sym2name(mrb, mrb_symbol(mid)));
 
   return self;
