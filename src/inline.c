@@ -164,6 +164,7 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
 
     switch(GET_OPCODE(code)) {
 //  switch(get_opcode__code)) {
+//  if (get_opcode__code == OP_RETURN) {
     case OP_RETURN:
       code = MKOP_AB(OP_MOVE, a, GETARG_A(code) + a);
 //    code = MKOP_AB(OP_MOVE, a, getarg_a__code__a);
@@ -172,6 +173,7 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
       break;
 
     case OP_LOADSELF:
+//  } else if (get_opcode__code == OP_LOADSELF) {
       code = MKOP_AB(OP_MOVE, GETARG_A(code), 0);
 //    code = MKOP_AB(OP_MOVE, getarg_a__code, 0);
       break;
@@ -179,12 +181,14 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
 /// default:
 ///   switch(get_opcode__code)) {
       case OP_LAMBDA:
+//  } else if (get_opcode__code == OP_LAMBDA) {
 	code = MKOP_Abc(OP_LAMBDA, GETARG_A(code), GETARG_b(code) + repsbase, GETARG_c(code));
 //	code = MKOP_Abc(OP_LAMBDA, getarg_a__code, GETARG_b(code) + repsbase, GETARG_c(code));
 	patch_reps(mrb, dst->reps[GETARG_b(code)], a, 0);
 	break;
 
       case OP_ENTER:
+//  } else if (get_opcode__code == OP_ENTER) {
 	code = MKOPCODE(OP_NOP);
 	break;
 ///
@@ -208,25 +212,33 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
     case OPTYPE_Bx:
     case OPTYPE_sBx:
     case OPTYPE_Ax:
+//  if (optype_list__get_opcode__code == OPTYPE_NONE ||
+//	optype_list__get_opcode__code == OPTYPE_Bx   ||
+//	optype_list__get_opcode__code == OPTYPE_sBx  ||
+//	optype_list__get_opcode__code == OPTYPE_Ax)  {
       /* do nothing */
       break;
 
     case OPTYPE_A:
+//  } else if (get_opcode__code == OPTYPE_A) {
       code = MKOP_A(GET_OPCODE(code), GETARG_A(code) + a);
 //    code = MKOP_A(get_opcode__code, getarg_a__code__a);
       break;
 
 //  default:
+//  } else {
 //    getarg_b__code	= GETARG_B(code);
 //    getarg_b__code__a = getarg_b__code + a;
 
 //    switch(optype_list__get_opcode__code) {
       case OPTYPE_AB:
+//    if (optype_list__get_opcode__code == OPTYPE_AB) {
 	code = MKOP_AB(GET_OPCODE(code), GETARG_A(code) + a, GETARG_B(code) + a);
 //	code = MKOP_AB(get_opcode__code, getarg_a__code__a, getarg_b__code__a);
 	break;
 
 //    default:
+//    } else {
 ///	getarg_b__code	  = GETARG_B(code);
 ///	getarg_b__code__a = getarg_b__code + a;
 //	getarg_c__code	  = GETARG_C(code);
@@ -234,6 +246,7 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
 
 //	switch(optype_list__get_opcode__code) {
 	case OPTYPE_ABC:
+//	if (optype_list__get_opcode__code == OPTYPE_ABC) {
 	  code = MKOP_ABC(GET_OPCODE(code), 
 		      GETARG_A(code) + a, GETARG_B(code) + a, GETARG_C(code) + a);
 //	  code = MKOP_ABC(get_opcode__code, 
@@ -241,6 +254,7 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
 	  break;
 
 	case OPTYPE_ABsC:
+//	} else if (optype_list__get_opcode__code == OPTYPE_ABsC) {
 	  code = MKOP_ABC(GET_OPCODE(code), 
 		      GETARG_A(code) + a, GETARG_B(code) + symbase, GETARG_C(code) + a);
 //	  code = MKOP_ABC(get_opcode__code, 
@@ -248,6 +262,7 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
 	  break;
 
 	case OPTYPE_ABxC:
+//	} else if (optype_list__get_opcode__code == OPTYPE_ABxC) {
 	  code = MKOP_ABC(GET_OPCODE(code), 
 		      GETARG_A(code) + a, GETARG_B(code), GETARG_C(code) + a);
 //	  code = MKOP_ABC(get_opcode__code, 
@@ -255,6 +270,7 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
 	  break;
 
 	case OPTYPE_ABCx:
+//	} else if (optype_list__get_opcode__code == OPTYPE_ABCx) {
 	  code = MKOP_ABC(GET_OPCODE(code), 
 		      GETARG_A(code) + a, GETARG_B(code) + a, GETARG_C(code));
 //	  code = MKOP_ABC(get_opcode__code, 
@@ -263,6 +279,7 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
 
 
 	case OPTYPE_ABxCx:
+//	} else if (optype_list__get_opcode__code == OPTYPE_ABxCx) {
 	  code = MKOP_ABC(GET_OPCODE(code), 
 		      GETARG_A(code) + a, GETARG_B(code), GETARG_C(code));
 //	  code = MKOP_ABC(get_opcode__code, 
@@ -270,6 +287,7 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
 	  break;
 
 	case OPTYPE_ABsCx:
+//	} else if (optype_list__get_opcode__code == OPTYPE_ABsCx) {
 	  code = MKOP_ABC(GET_OPCODE(code), 
 		      GETARG_A(code) + a, GETARG_B(code) + symbase, GETARG_C(code));
 //	  code = MKOP_ABC(get_opcode__code, 
@@ -277,33 +295,39 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
 	  break;
 
 ///	case OPTYPE_AsBx:
+//	} else if (optype_list__get_opcode__code == OPTYPE_AsBx) {
 ///	    code = MKOP_AsBx(GET_OPCODE(code), GETARG_A(code) + a, GETARG_sBx(code));
 ///	    code = MKOP_AsBx(get_opcode__code, getarg_a__code__a, GETARG_sBx(code));
 ///	    break;
 
 ///	default:
+//	} else {
 ///	  getarg_bx__code = GETARG_Bx(code);
 
 //	  switch(optype_list__get_opcode__code) {
 //	  case OPTYPE_ABx:
+//	  if (optype_list__get_opcode__code == OPTYPE_ABx) {
 	    code = MKOP_ABx(GET_OPCODE(code), GETARG_A(code) + a, GETARG_Bx(code));
 //	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, GETARG_Bx(code));
 ///	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, getarg_bx__code);
 	  break;
 
 	  case OPTYPE_ABp:
+//	  } else if (optype_list__get_opcode__code == OPTYPE_ABp) {
 	    code = MKOP_ABx(GET_OPCODE(code), GETARG_A(code) + a, GETARG_Bx(code) + poolbase);
 //	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, GETARG_Bx(code) + poolbase);
 ///	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, getarg_bx__code + poolbase);
 	    break;
 
 	  case OPTYPE_ABs:
+//	  } else if (optype_list__get_opcode__code == OPTYPE_ABs) {
 	    code = MKOP_ABx(GET_OPCODE(code), GETARG_A(code) + a, GETARG_Bx(code) + symbase);
 //	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, GETARG_Bx(code) + symbase);
 ///	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, getarg_bx__code + symbase);
 	    break;
 
 	  case OPTYPE_AsBx:
+//	  } else if (optype_list__get_opcode__code == OPTYPE_AsBx) {
 	    code = MKOP_AsBx(GET_OPCODE(code), GETARG_A(code) + a, GETARG_sBx(code));
 //	    code = MKOP_AsBx(get_opcode__code, getarg_a__code__a, GETARG_sBx(code));
 	    break;
