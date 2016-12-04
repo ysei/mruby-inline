@@ -20,7 +20,7 @@ copy_irep(mrb_state *mrb, mrb_irep *irep)
     nirep->iseq[i] = irep->iseq[i];
 // i = 0
 // while (i < irep->ilen) {
-//  nirep->iseq[i] = irep->iseq[i++];	/* -O0 ? */
+//  nirep->iseq[i] = irep->iseq[i++];	// -O0 ? 
   }
 
   nirep->reps = (mrb_irep**)mrb_malloc(mrb, sizeof(mrb_irep*)*irep->rlen);
@@ -28,7 +28,7 @@ copy_irep(mrb_state *mrb, mrb_irep *irep)
     nirep->reps[i] = copy_irep(mrb, irep->reps[i]);
 // i = 0
 // while (i < irep->rlen) {
-//  nirep->reps[i] = copy_irep(mrb, irep->reps[i++]);	/* -O0 ? */
+//  nirep->reps[i] = copy_irep(mrb, irep->reps[i++]);	// -O0 ? 
   }
 
   return nirep;
@@ -49,14 +49,14 @@ patch_reps(mrb_state *mrb, mrb_irep *irep, int a, int level) {
 	code = MKOP_ABC(GET_OPCODE(code), 
 			GETARG_A(code), GETARG_B(code) + a, level);
 	irep->iseq[i] = code;
-//	irep->iseq[i++] = code;		/* -O0 ? */
+//	irep->iseq[i++] = code;		// -O0 ? 
       }
 
       break;
 
     default:
       /* Do nothing */
-//    i++;				/* bunki yosoku ? */
+//    i++;				// bunki yosoku ? 
       break;
     }
   }
@@ -65,7 +65,7 @@ patch_reps(mrb_state *mrb, mrb_irep *irep, int a, int level) {
     patch_reps(mrb, irep->reps[i], a, level + 1);
 // i = 0
 // while (i < irep->rlen) {
-//  patch_reps(mrb, irep->reps[i++], a, level + 1);	/* -O0 ? */
+//  patch_reps(mrb, irep->reps[i++], a, level + 1);	// -O0 ? 
   }
 }
 
@@ -76,15 +76,16 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
   mrb_code *curpos;
   mrb_code *ent;
   mrb_code code;
-// mrb_code get_opcode__code;			/* ? */
-// mrb_code optype_list__get_opcode__code;	/* ? */
-// mrb_code getarg_a__code;			/* ? */
-// mrb_code getarg_a__code__a;			/* ? */
-// mrb_code getarg_b__code;			/* ? */
-// mrb_code getarg_b__code__a;			/* ? */
-/// mrb_code getarg_bx__code;			/* ? */
-// mrb_code getarg_c__code;			/* ? */
-// mrb_code getarg_c__code__a;			/* ? */
+// mrb_code get_opcode__code;			// ? 
+// mrb_code optype_list__get_opcode__code;	// ? 
+// mrb_code getarg_a__code;			// ? 
+// mrb_code getarg_a__code__a;			// ? 
+// mrb_code getarg_b__code;			// ? 
+// mrb_code getarg_b__code__a;			// ? 
+/// mrb_code getarg_bx__code;			// ? 
+//// mrb_code getarg_b_bx__code;		// ? 
+// mrb_code getarg_c__code;			// ? 
+// mrb_code getarg_c__code__a;			// ? 
   int i;
   size_t symbase = dst->slen;
   size_t poolbase = dst->plen;
@@ -118,7 +119,7 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
       dst->syms[symbase + i] = src->syms[i];
 //  i = 0;
 //  while (i < src->slen) {
-//    dst->syms[symbase + i] = src->syms[i++];	/* -O0 ? */
+//    dst->syms[symbase + i] = src->syms[i++];	// -O0 ? 
     }
   }
 
@@ -130,7 +131,7 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
       dst->pool[poolbase + i] = src->pool[i];
 //  i = 0;
 //  while (i < src->plen) {
-//    dst->pool[poolbase + i] = src->pool[i++];		/* -O0 ? */
+//    dst->pool[poolbase + i] = src->pool[i++];		// -O0 ? 
     }
   }
 
@@ -142,7 +143,7 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
       dst->reps[repsbase + i] = copy_irep(mrb, src->reps[i]);
 //  i = 0;
 //  while (i < src->rlen) {
-//    dst->reps[repsbase + i] = copy_irep(mrb, src->reps[i++]);		/* -O0 ? */
+//    dst->reps[repsbase + i] = copy_irep(mrb, src->reps[i++]);		// -O0 ? 
     }
   }
 
@@ -151,12 +152,21 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
   *(curpos++) = MKOP_A(OP_NOP, src->ilen);
   *send_pc = MKOP_sBx(OP_JMP, curpos - send_pc);
 
+// *(curpos++) = MKOP_A(OP_NOP, src->ilen); /* size */
+// code        = MKOP_A(OP_NOP, src->ilen);
+// *send_pc =
+//	MKOP_sBx(OP_JMP, ++curpos - send_pc);
+///	MKOP_sBx(OP_JMP, (32 >> 2) + curpos - send_pc);	// (64 >> 2) +	// 1 +
+// curpos--;
+
   /* Patched inlined code */
   for (i = 0; i < src->ilen; i++) {
+//  *(curpos++) = code;
     code = src->iseq[i];
 // i = 0;
 // while (i < src->ilen) {
-//  code = src->iseq[i++];	/* -O0 ? */
+//  *(curpos++) = code;
+//  code = src->iseq[i++];	// -O0 ? 
 
 //  get_opcode__code  = GET_OPCODE(code);
 //  getarg_a__code    = GETARG_A(code);
@@ -302,28 +312,32 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
 
 ///	default:
 //	} else {
-///	  getarg_bx__code = GETARG_Bx(code);
+////	  getarg_bx__code = GETARG_Bx(code);
+///	  getarg_b__code = GETARG_Bx(code);
 
 //	  switch(optype_list__get_opcode__code) {
 	  case OPTYPE_ABx:
 //	  if (optype_list__get_opcode__code == OPTYPE_ABx) {
 	    code = MKOP_ABx(GET_OPCODE(code), GETARG_A(code) + a, GETARG_Bx(code));
 //	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, GETARG_Bx(code));
-///	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, getarg_bx__code);
+////	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, getarg_bx__code);
+///	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, getarg_b__code);
 	  break;
 
 	  case OPTYPE_ABp:
 //	  } else if (optype_list__get_opcode__code == OPTYPE_ABp) {
 	    code = MKOP_ABx(GET_OPCODE(code), GETARG_A(code) + a, GETARG_Bx(code) + poolbase);
 //	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, GETARG_Bx(code) + poolbase);
-///	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, getarg_bx__code + poolbase);
+////	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, getarg_bx__code + poolbase);
+///	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, getarg_b__code + poolbase);
 	    break;
 
 	  case OPTYPE_ABs:
 //	  } else if (optype_list__get_opcode__code == OPTYPE_ABs) {
 	    code = MKOP_ABx(GET_OPCODE(code), GETARG_A(code) + a, GETARG_Bx(code) + symbase);
 //	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, GETARG_Bx(code) + symbase);
-///	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, getarg_bx__code + symbase);
+////	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, getarg_bx__code + symbase);
+///	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, getarg_b__code + symbase);
 	    break;
 
 	  case OPTYPE_AsBx:
@@ -339,6 +353,7 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
     }
 
     *(curpos++) = code;
+//
   }
 
   return ent + 2;
@@ -370,12 +385,12 @@ mrb_inline_missing(mrb_state *mrb, mrb_value self)
 //  mrb->c->stack[a] = mrb->c->stack[a + 1];
 // i = 1;
 // while (i <= argc) {
-//  mrb->c->stack[i] = mrb->c->stack[++i];	/* -O0 ? */
-//  mrb->c->stack[i++] = mrb->c->stack[i];	/* -O0 ? */
+//  mrb->c->stack[i] = mrb->c->stack[++i];	// -O0 ? 
+//  mrb->c->stack[i++] = mrb->c->stack[i];	// -O0 ? 
 // a = 1;
 // while (a <= argc) {
-//  mrb->c->stack[a] = mrb->c->stack[++a];	/* -O0 ? */
-//  mrb->c->stack[a++] = mrb->c->stack[a];	/* -O0 ? */
+//  mrb->c->stack[a] = mrb->c->stack[++a];	// -O0 ? 
+//  mrb->c->stack[a++] = mrb->c->stack[a];	// -O0 ? 
   }
   
   caller_proc = mrb->c->ci[-1].proc;
