@@ -305,7 +305,7 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
 ///	  getarg_bx__code = GETARG_Bx(code);
 
 //	  switch(optype_list__get_opcode__code) {
-//	  case OPTYPE_ABx:
+	  case OPTYPE_ABx:
 //	  if (optype_list__get_opcode__code == OPTYPE_ABx) {
 	    code = MKOP_ABx(GET_OPCODE(code), GETARG_A(code) + a, GETARG_Bx(code));
 //	    code = MKOP_ABx(get_opcode__code, getarg_a__code__a, GETARG_Bx(code));
