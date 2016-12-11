@@ -150,14 +150,22 @@ patch_irep_for_inline(mrb_state *mrb, mrb_irep *src, mrb_irep *dst, int a)
   /* Meta data */
   *(curpos++) = MKOP_A(OP_NOP, src->ilen); /* size */
   *(curpos++) = MKOP_A(OP_NOP, src->ilen);
+// *(curpos) = MKOP_A(OP_NOP, src->ilen); /* size */
+// *(++curpos) = *(curpos);
+// curpos++;
+/// *(++curpos) = *(curpos++);		// ? 
+/// *(curpos++) = *(++curpos);		// ? 
   *send_pc = MKOP_sBx(OP_JMP, curpos - send_pc);
+// *send_pc = MKOP_sBx(OP_JMP, ++curpos - send_pc);
 
 // *(curpos++) = MKOP_A(OP_NOP, src->ilen); /* size */
 // code        = MKOP_A(OP_NOP, src->ilen);
+/// code       = MKOP_A(OP_NOP, src->ilen); /* size */
+/// *(curpos++) = code;
 // *send_pc =
 //	MKOP_sBx(OP_JMP, ++curpos - send_pc);
 ///	MKOP_sBx(OP_JMP, (32 >> 2) + curpos - send_pc);	// (64 >> 2) +	// 1 +
-// curpos--;
+// --curpos;	// curpos--;
 
   /* Patched inlined code */
   for (i = 0; i < src->ilen; i++) {
